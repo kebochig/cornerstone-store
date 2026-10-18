@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro';
+import { getProducts, formatPrice } from '../lib/sanity.js';
+
+const products = await getProducts();
+const categories = [...new Set(products.map((p) => p.category))].sort();
+const sizes = [...new Set(products.flatMap((p) => p.sizes))];
+---
+<Base>
+  <section class="filters">
+    <input id="f-search" type="search" placeholder="Search products…" />
+    <div class="chips" id="f-cat">
+      <button class="chip active" data-cat="">All</button>
+      {categories.map((c) => <button class="chip" data-cat={c}>{c}</button>)}
+    </div>
+    <select id="f-size">
+      <option value="">Any size</option>
+      {sizes.map((s) => <option value={s}>{s}</option>)}
+    </select>
+  </section>
+
+  <p id="f-empty" class="empty" hidden>No products match these filters.</p>
+
+  <section class="grid">
+    {products.map((p) => (
+      <article
+        class="card"
+        data-product={JSON.stringify({ slug: p.slug, name: p.name, price: p.price })}
+        data-cat={p.category}
+        data-sizes={p.sizes.join('|')}
+        data-name={p.name.toLowerCase()}
+      >
+        <a href={`/product/${p.slug}/`} class="thumb">
+          {p.images[0] && <img src={p.images[0]} alt={p.name} loading="lazy" />}
+          {!p.inStock && <span class="tag">Sold out</span>}
+        </a>
+        <div class="info">
+          <a href={`/product/${p.slug}/`} class="name">{p.name}</a>
+          <span class="price">{formatPrice(p.price)}</span>
+          <div class="sizes">{p.sizes.map((s) => <span>{s}</span>)}</div>
+          {p.inStock && (
+            <div class="buy">
+              {p.sizes.length > 0 && (
+                <select name="size" aria-label="Size">
+                  <option value="">Size</option>
+                  {p.sizes.map((s) => <option value={s}>{s}</option>)}
+                </select>
+              )}
+              <button class="btn" data-add>Add</button>
+            </div>
+          )}
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <script>
+    const cards = [...document.querySelectorAll('.card')];
+    const search = document.getElementById('f-search');
+    const size = document.getElementById('f-size');
+    let cat = '';
+
+    function apply() {
+      const q = search.value.trim().toLowerCase();
+      let shown = 0;
+      for (const c of cards) {
+        const ok =
+          (!cat || c.dataset.cat === cat) &&
+          (!size.value || c.dataset.sizes.split('|').includes(size.value)) &&
+          (!q || c.dataset.name.includes(q));
+        c.hidden = !ok;
+        shown += ok;
+      }
+      document.getElementById('f-empty').hidden = shown > 0;
+    }
+
+    document.getElementById('f-cat').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip');
+      if (!b) return;
+      document.querySelectorAll('.chip').forEach((x) => x.classList.toggle('active', x === b));
+      cat = b.dataset.cat;
+      apply();
+    });
+    search.addEventListener('input', apply);
+    size.addEventListener('change', apply);
+  </script>
+</Base>

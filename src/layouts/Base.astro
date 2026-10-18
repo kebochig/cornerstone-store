@@ -1,0 +1,43 @@
+---
+import '../styles/global.css';
+import { store } from '../lib/sanity.js';
+const { title = store.name } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
+  </head>
+  <body data-whatsapp={store.whatsapp} data-currency={store.currency} data-store={store.name}>
+    <header class="topbar">
+      <a href="/" class="brand">
+        <img src="/logo.jpg" alt="" width="40" height="40" />
+        <span>{store.name}</span>
+      </a>
+      <button id="cart-open" class="cart-btn" aria-label="Open cart">
+        Cart <span id="cart-count" class="badge">0</span>
+      </button>
+    </header>
+
+    <main><slot /></main>
+
+    <aside id="cart" class="drawer" aria-hidden="true">
+      <div class="drawer-head">
+        <h2>Your order</h2>
+        <button id="cart-close" aria-label="Close cart">✕</button>
+      </div>
+      <ul id="cart-items" class="cart-items"></ul>
+      <div class="drawer-foot">
+        <div class="total"><span>Total</span><strong id="cart-total">0</strong></div>
+        <input id="cart-name" placeholder="Your name (optional)" />
+        <button id="cart-checkout" class="btn primary">Order on WhatsApp</button>
+      </div>
+    </aside>
+    <div id="cart-backdrop" class="backdrop"></div>
+
+    <script>import '../scripts/cart.js';</script>
+  </body>
+</html>

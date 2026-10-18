@@ -1,0 +1,16 @@
+{
+  "name": "store-catalogue",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@sanity/client": "^6.21.0",
+    "@sanity/image-url": "^1.0.2",
+    "astro": "^5.0.0"
+  }
+}

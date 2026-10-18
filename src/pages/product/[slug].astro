@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getProducts, formatPrice } from '../../lib/sanity.js';
+
+export async function getStaticPaths() {
+  const products = await getProducts();
+  return products.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props;
+---
+<Base title={p.name}>
+  <a href="/" class="back">← All products</a>
+  <article class="detail" data-product={JSON.stringify({ slug: p.slug, name: p.name, price: p.price })}>
+    <div class="gallery">
+      {p.images.map((src) => <img src={src} alt={p.name} />)}
+    </div>
+    <div class="detail-info">
+      <small class="cat">{p.category}</small>
+      <h1>{p.name}</h1>
+      <p class="price big">{formatPrice(p.price)}</p>
+      {p.description && <p class="desc">{p.description}</p>}
+      {p.inStock ? (
+        <div class="buy">
+          {p.sizes.length > 0 && (
+            <select name="size" aria-label="Size">
+              <option value="">Choose size</option>
+              {p.sizes.map((s) => <option value={s}>{s}</option>)}
+            </select>
+          )}
+          <button class="btn primary" data-add>Add to cart</button>
+        </div>
+      ) : (
+        <p class="tag inline">Sold out</p>
+      )}
+    </div>
+  </article>
+</Base>

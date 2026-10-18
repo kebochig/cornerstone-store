@@ -1,0 +1,15 @@
+{
+  "name": "store-admin",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "sanity dev",
+    "deploy": "sanity deploy"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sanity": "^3.60.0",
+    "styled-components": "^6.1.13"
+  }
+}

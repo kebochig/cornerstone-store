@@ -1,0 +1,8 @@
+node_modules
+dist
+.astro
+.env
+studio/node_modules
+studio/dist
+.claude
+studio/.sanity
