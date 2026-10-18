@@ -14,7 +14,8 @@ const save = (c) => { try { localStorage.setItem(KEY, JSON.stringify(c)); } catc
 export function addToCart(item) {
   const cart = load();
   const hit = cart.find((i) => i.slug === item.slug && i.size === item.size);
-  hit ? (hit.qty += 1) : cart.push({ ...item, qty: 1 });
+  if (hit) hit.qty = Math.min(hit.qty + 1, hit.max ?? Infinity);
+  else cart.push({ ...item, qty: 1 });
   save(cart);
   open();
 }
@@ -31,7 +32,7 @@ function render() {
         <div class="qty">
           <button data-act="dec" data-idx="${idx}" aria-label="Decrease">−</button>
           <span>${i.qty}</span>
-          <button data-act="inc" data-idx="${idx}" aria-label="Increase">+</button>
+          <button data-act="inc" data-idx="${idx}" aria-label="Increase"${i.qty >= (i.max ?? Infinity) ? ' disabled' : ''}>+</button>
         </div>
       </li>`).join('')
     : '<li class="empty">Your cart is empty.</li>';
@@ -49,7 +50,7 @@ document.getElementById('cart-items').onclick = (e) => {
   if (!b) return;
   const cart = load();
   const i = cart[+b.dataset.idx];
-  i.qty += b.dataset.act === 'inc' ? 1 : -1;
+  i.qty = Math.min(i.qty + (b.dataset.act === 'inc' ? 1 : -1), i.max ?? Infinity);
   save(cart.filter((x) => x.qty > 0));
 };
 
@@ -72,7 +73,8 @@ document.addEventListener('click', (e) => {
   const sel = root.querySelector('select[name=size]');
   if (sel && !sel.value) { sel.focus(); sel.classList.add('shake'); setTimeout(() => sel.classList.remove('shake'), 400); return; }
   const p = JSON.parse(root.dataset.product);
-  addToCart({ slug: p.slug, name: p.name, price: p.price, size: sel ? sel.value : '-' });
+  const size = sel ? sel.value : '-';
+  addToCart({ slug: p.slug, name: p.name, price: p.price, size, max: p.stock?.[size] ?? undefined });
 });
 
 render();

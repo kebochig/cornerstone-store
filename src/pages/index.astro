@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getProducts, formatPrice } from '../lib/sanity.js';
+import { getProducts, formatPrice, sizeLabel, LOW_STOCK } from '../lib/sanity.js';
 
 const products = await getProducts();
 const categories = [...new Set(products.map((p) => p.category))].sort();
@@ -25,7 +25,7 @@ const sizes = [...new Set(products.flatMap((p) => p.sizes))];
     {products.map((p) => (
       <article
         class="card"
-        data-product={JSON.stringify({ slug: p.slug, name: p.name, price: p.price })}
+        data-product={JSON.stringify({ slug: p.slug, name: p.name, price: p.price, stock: p.stock })}
         data-cat={p.category}
         data-sizes={p.sizes.join('|')}
         data-name={p.name.toLowerCase()}
@@ -33,6 +33,7 @@ const sizes = [...new Set(products.flatMap((p) => p.sizes))];
         <a href={`/product/${p.slug}/`} class="thumb">
           {p.images[0] && <img src={p.images[0]} alt={p.name} loading="lazy" />}
           {!p.inStock && <span class="tag">Sold out</span>}
+          {p.inStock && p.left !== null && p.left <= LOW_STOCK && <span class="tag low">Only {p.left} left</span>}
         </a>
         <div class="info">
           <a href={`/product/${p.slug}/`} class="name">{p.name}</a>
@@ -43,7 +44,7 @@ const sizes = [...new Set(products.flatMap((p) => p.sizes))];
               {p.sizes.length > 0 && (
                 <select name="size" aria-label="Size">
                   <option value="">Size</option>
-                  {p.sizes.map((s) => <option value={s}>{s}</option>)}
+                  {p.sizes.map((s) => <option value={s}>{sizeLabel(p, s)}</option>)}
                 </select>
               )}
               <button class="btn" data-add>Add</button>

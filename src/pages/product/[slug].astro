@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getProducts, formatPrice } from '../../lib/sanity.js';
+import { getProducts, formatPrice, sizeLabel, LOW_STOCK } from '../../lib/sanity.js';
 
 export async function getStaticPaths() {
   const products = await getProducts();
@@ -10,7 +10,7 @@ const { p } = Astro.props;
 ---
 <Base title={p.name}>
   <a href="/" class="back">← All products</a>
-  <article class="detail" data-product={JSON.stringify({ slug: p.slug, name: p.name, price: p.price })}>
+  <article class="detail" data-product={JSON.stringify({ slug: p.slug, name: p.name, price: p.price, stock: p.stock })}>
     <div class="gallery">
       {p.images.map((src) => <img src={src} alt={p.name} />)}
     </div>
@@ -19,12 +19,13 @@ const { p } = Astro.props;
       <h1>{p.name}</h1>
       <p class="price big">{formatPrice(p.price)}</p>
       {p.description && <p class="desc">{p.description}</p>}
+      {p.inStock && p.left !== null && p.left <= LOW_STOCK && <p class="tag inline low">Only {p.left} left</p>}
       {p.inStock ? (
         <div class="buy">
           {p.sizes.length > 0 && (
             <select name="size" aria-label="Size">
               <option value="">Choose size</option>
-              {p.sizes.map((s) => <option value={s}>{s}</option>)}
+              {p.sizes.map((s) => <option value={s}>{sizeLabel(p, s)}</option>)}
             </select>
           )}
           <button class="btn primary" data-add>Add to cart</button>
