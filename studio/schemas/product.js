@@ -17,7 +17,7 @@ export default {
       description: 'Tick every size you have. Leave all unticked for one-size items.',
       options: {
         layout: 'grid',
-        list: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47'],
+        list: ['3XS', '2XS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47'],
       },
     },
     {
