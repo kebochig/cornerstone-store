@@ -32,7 +32,7 @@ function withStock(p) {
   const tracked = rows.every((r) => r.qty !== null);
   return {
     ...p,
-    sizes: available.map((r) => r.size).filter((s) => s !== '-'),
+    sizes: sortSizes(available.map((r) => r.size).filter((s) => s !== '-')),
     stock: Object.fromEntries(available.map((r) => [r.size, r.qty])), // size -> qty, null = not tracked
     left: tracked ? available.reduce((s, r) => s + r.qty, 0) : null,
     inStock: p.inStock !== false && available.length > 0,
@@ -40,9 +40,26 @@ function withStock(p) {
 }
 
 /** Size dropdown label, e.g. "M (only 2 left)". */
+/** Kids' sizing shown next to the size, e.g. "2XS (Age 12)". */
+const SIZE_GUIDE = { '6XS': 'Age 4', '5XS': 'Age 6', '4XS': 'Age 8', '3XS': 'Age 10', '2XS': 'Age 12', XS: 'Age 14', S: 'Age 16' };
+
+/** Sorts sizes smallest first: letter sizes 6XS..4XL, then numbers; unknown sizes last. */
+const LETTER_ORDER = ['6XS', '5XS', '4XS', '3XS', '2XS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'];
+const sizeRank = (s) => {
+  const i = LETTER_ORDER.indexOf(s);
+  if (i >= 0) return i;
+  const n = Number(s);
+  return Number.isFinite(n) ? 100 + n : 1000;
+};
+export const sortSizes = (sizes) => [...sizes].sort((a, b) => sizeRank(a) - sizeRank(b));
+
+/** Size with its guide, e.g. "2XS (Age 12)". */
+export const sizeName = (size) => (SIZE_GUIDE[size] ? `${size} (${SIZE_GUIDE[size]})` : size);
+
+/** Size dropdown label, e.g. "2XS (Age 12) · only 2 left". */
 export const sizeLabel = (p, size) => {
   const qty = p.stock[size];
-  return qty != null && qty <= LOW_STOCK ? `${size} (only ${qty} left)` : size;
+  return qty != null && qty <= LOW_STOCK ? `${sizeName(size)} · only ${qty} left` : sizeName(size);
 };
 
 let cached;

@@ -1,10 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getProducts, formatPrice, sizeLabel, LOW_STOCK } from '../lib/sanity.js';
+import { getProducts, formatPrice, sizeLabel, sizeName, sortSizes, LOW_STOCK } from '../lib/sanity.js';
 
 const products = await getProducts();
 const categories = [...new Set(products.map((p) => p.category))].sort();
-const sizes = [...new Set(products.flatMap((p) => p.sizes))];
+const sizes = sortSizes(new Set(products.flatMap((p) => p.sizes)));
 ---
 <Base>
   <section class="filters">
@@ -15,7 +15,7 @@ const sizes = [...new Set(products.flatMap((p) => p.sizes))];
     </div>
     <select id="f-size">
       <option value="">Any size</option>
-      {sizes.map((s) => <option value={s}>{s}</option>)}
+      {sizes.map((s) => <option value={s}>{sizeName(s)}</option>)}
     </select>
   </section>
 
