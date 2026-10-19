@@ -92,3 +92,15 @@ body.cart-open .backdrop { opacity: 1; pointer-events: auto; }
 .sim img, .sim .ph { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 8px; background: var(--line); display: block; }
 .sim .n { font-weight: 600; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sim .p { color: var(--accent-text); font-weight: 600; }
+.sim-img { position: relative; display: block; }
+.sim-img .tag.featured { top: 6px; right: 6px; width: 24px; height: 24px; font-size: 14px; }
+
+/* Product page "You may also like": one row of 6 on desktop, swipe row on mobile. */
+.related { margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--line); }
+.related h2 { font-size: 18px; margin: 0 0 12px; }
+.related-list { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.related .sim { font-size: 14px; }
+@media (max-width: 759px) {
+  .related-list { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -16px; padding: 0 16px 6px; scroll-padding: 0 16px; }
+  .related .sim { flex: 0 0 40%; }
+}

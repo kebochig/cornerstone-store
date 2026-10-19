@@ -1,12 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getProducts, formatPrice, sizeLabel, LOW_STOCK } from '../../lib/sanity.js';
+import { pickSimilar } from '../../scripts/similar.js';
 
 export async function getStaticPaths() {
   const products = await getProducts();
   return products.map((p) => ({ params: { slug: p.slug }, props: { p } }));
 }
 const { p } = Astro.props;
+// Same picks as the cart drawer would show for this product: 3 similar + 3 random.
+const related = pickSimilar(await getProducts(), p.slug, [], 3, 3);
 ---
 <Base title={p.name}>
   <a href="/" class="back">← All products</a>
@@ -35,4 +38,22 @@ const { p } = Astro.props;
       )}
     </div>
   </article>
+
+  {related.length > 0 && (
+    <section class="related">
+      <h2>You may also like</h2>
+      <div class="related-list">
+        {related.map((r) => (
+          <a class="sim" href={`/product/${r.slug}/`} data-sim={r.slug} data-from={p.slug} data-where="product-page">
+            <span class="sim-img">
+              {r.images[0] ? <img src={r.images[0]} alt="" loading="lazy" /> : <span class="ph"></span>}
+              {r.pinned && <span class="tag featured" role="img" aria-label="Featured" title="Featured">★</span>}
+            </span>
+            <span class="n">{r.name}</span>
+            <span class="p">{formatPrice(r.price)}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
 </Base>

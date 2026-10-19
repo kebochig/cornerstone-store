@@ -54,16 +54,17 @@ function renderSimilar(cart) {
   const picks = base ? pickSimilar(catalog, base, inCart, 3, 3) : [];
   box.hidden = picks.length === 0;
   document.getElementById('similar-list').innerHTML = picks.map((p) => `
-    <a class="sim" href="/product/${encodeURIComponent(p.slug)}/" data-sim="${esc(p.slug)}" data-from="${esc(base)}">
+    <a class="sim" href="/product/${encodeURIComponent(p.slug)}/" data-sim="${esc(p.slug)}" data-from="${esc(base)}" data-where="cart">
       ${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy" />` : '<span class="ph"></span>'}
       <span class="n">${esc(p.name)}</span>
       <span class="p">${esc(fmt(p.price))}</span>
     </a>`).join('');
 }
 
-document.getElementById('similar-list').addEventListener('click', (e) => {
+// Suggestion taps in the cart drawer or the product page's "You may also like".
+document.addEventListener('click', (e) => {
   const a = e.target.closest('a[data-sim]');
-  if (a) track('suggestion-click', { product: a.dataset.sim, from: a.dataset.from });
+  if (a) track('suggestion-click', { product: a.dataset.sim, from: a.dataset.from, where: a.dataset.where });
 });
 
 function open() { document.body.classList.add('cart-open'); }
