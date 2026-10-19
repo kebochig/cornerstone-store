@@ -1,5 +1,10 @@
 // Cart stored in localStorage; checkout opens WhatsApp with a prefilled order.
+import { pickSimilar } from './similar.js';
+import { track } from './track.js';
+
 const KEY = 'cart.v1';
+const LAST_KEY = 'cart.last'; // slug of the most recently added product, drives suggestions
+const catalog = (() => { try { return JSON.parse(document.getElementById('catalog').textContent); } catch { return []; } })();
 const { whatsapp, currency, store } = document.body.dataset;
 const fmt = (n) =>
   new Intl.NumberFormat('en-NG', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -16,6 +21,7 @@ export function addToCart(item) {
   const hit = cart.find((i) => i.slug === item.slug && i.size === item.size);
   if (hit) hit.qty = Math.min(hit.qty + 1, hit.max ?? Infinity);
   else cart.push({ ...item, qty: 1 });
+  try { localStorage.setItem(LAST_KEY, item.slug); } catch {}
   save(cart);
   open();
 }
@@ -36,7 +42,29 @@ function render() {
         </div>
       </li>`).join('')
     : '<li class="empty">Your cart is empty.</li>';
+  renderSimilar(cart);
 }
+
+function renderSimilar(cart) {
+  const box = document.getElementById('cart-similar');
+  const inCart = cart.map((i) => i.slug);
+  let last = null;
+  try { last = localStorage.getItem(LAST_KEY); } catch {}
+  const base = inCart.includes(last) ? last : inCart[inCart.length - 1];
+  const picks = base ? pickSimilar(catalog, base, inCart, 3, 3) : [];
+  box.hidden = picks.length === 0;
+  document.getElementById('similar-list').innerHTML = picks.map((p) => `
+    <a class="sim" href="/product/${encodeURIComponent(p.slug)}/" data-sim="${esc(p.slug)}" data-from="${esc(base)}">
+      ${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy" />` : '<span class="ph"></span>'}
+      <span class="n">${esc(p.name)}</span>
+      <span class="p">${esc(fmt(p.price))}</span>
+    </a>`).join('');
+}
+
+document.getElementById('similar-list').addEventListener('click', (e) => {
+  const a = e.target.closest('a[data-sim]');
+  if (a) track('suggestion-click', { product: a.dataset.sim, from: a.dataset.from });
+});
 
 function open() { document.body.classList.add('cart-open'); }
 function close() { document.body.classList.remove('cart-open'); }
@@ -62,6 +90,11 @@ document.getElementById('cart-checkout').onclick = () => {
   const total = fmt(cart.reduce((s, i) => s + i.qty * i.price, 0));
   const msg = [`Hello ${store}, I'd like to order:`, '', ...lines, '', `Total: ${total}`, name ? `Name: ${name}` : null]
     .filter((l) => l !== null).join('\n');
+  track('whatsapp-order', {
+    items: cart.reduce((s, i) => s + i.qty, 0),
+    total: cart.reduce((s, i) => s + i.qty * i.price, 0),
+    products: cart.map((i) => i.name).join(', ').slice(0, 450),
+  });
   window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
@@ -74,6 +107,7 @@ document.addEventListener('click', (e) => {
   if (sel && !sel.value) { sel.focus(); sel.classList.add('shake'); setTimeout(() => sel.classList.remove('shake'), 400); return; }
   const p = JSON.parse(root.dataset.product);
   const size = sel ? sel.value : '-';
+  track('add-to-cart', { product: p.name, size, price: p.price });
   addToCart({ slug: p.slug, name: p.name, price: p.price, size, max: p.stock?.[size] ?? undefined });
 });
 

@@ -1,7 +1,13 @@
 ---
 import '../styles/global.css';
-import { store } from '../lib/sanity.js';
+import { store, getProducts } from '../lib/sanity.js';
 const { title = store.name } = Astro.props;
+
+// Compact product list for "You may also like" in the cart. `<` is escaped so it can't close the script tag.
+const catalog = (await getProducts()).map((p) => ({
+  slug: p.slug, name: p.name, price: p.price, category: p.category, image: p.images[0] || '', inStock: p.inStock,
+}));
+const catalogJson = JSON.stringify(catalog).replace(/</g, '\\u003c');
 ---
 <!doctype html>
 <html lang="en">
@@ -10,6 +16,7 @@ const { title = store.name } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
+    {store.umamiId && <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id={store.umamiId}></script>}
   </head>
   <body data-whatsapp={store.whatsapp} data-currency={store.currency} data-store={store.name}>
     <header class="topbar">
@@ -29,7 +36,13 @@ const { title = store.name } = Astro.props;
         <h2>Your order</h2>
         <button id="cart-close" aria-label="Close cart">✕</button>
       </div>
-      <ul id="cart-items" class="cart-items"></ul>
+      <div class="drawer-body">
+        <ul id="cart-items" class="cart-items"></ul>
+        <section id="cart-similar" class="similar" hidden>
+          <h3>You may also like</h3>
+          <div id="similar-list" class="similar-list"></div>
+        </section>
+      </div>
       <div class="drawer-foot">
         <div class="total"><span>Total</span><strong id="cart-total">0</strong></div>
         <input id="cart-name" placeholder="Your name (optional)" />
@@ -38,6 +51,7 @@ const { title = store.name } = Astro.props;
     </aside>
     <div id="cart-backdrop" class="backdrop"></div>
 
+    <script type="application/json" id="catalog" is:inline set:html={catalogJson} />
     <script>import '../scripts/cart.js';</script>
   </body>
 </html>

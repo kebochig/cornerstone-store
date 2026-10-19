@@ -45,8 +45,14 @@ export const sizeLabel = (p, size) => {
   return qty != null && qty <= LOW_STOCK ? `${size} (only ${qty} left)` : size;
 };
 
-/** Returns products in one normalized shape, from Sanity or the sample file. */
-export async function getProducts() {
+let cached;
+
+/** Returns products in one normalized shape, from Sanity or the sample file. Fetched once per build. */
+export function getProducts() {
+  return (cached ??= loadProducts());
+}
+
+async function loadProducts() {
   if (!client) return sample.map(withStock);
   const rows = await client.fetch(QUERY);
   return rows.map((p) => withStock({
@@ -60,6 +66,7 @@ export const store = {
   name: import.meta.env.PUBLIC_STORE_NAME || 'Cornerstone Wears',
   whatsapp: import.meta.env.PUBLIC_WHATSAPP_NUMBER || '',
   currency: import.meta.env.PUBLIC_CURRENCY || 'NGN',
+  umamiId: import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || '',
 };
 
 export const formatPrice = (n) =>

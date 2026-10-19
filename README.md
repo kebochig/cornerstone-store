@@ -33,6 +33,13 @@ npm run deploy            # pick a name → admin lives at https://<name>.sanity
 2. Add the `PUBLIC_*` variables from `.env` under **Site settings → Environment variables**.
 3. Auto-publish: in Netlify **Build hooks**, create a hook and copy its URL. In Sanity **API → Webhooks**, add it (trigger on create/update/delete, filter `_type == "product"`). Every publish rebuilds the site in about a minute.
 
+## 4. Analytics (Umami, free)
+1. Sign up at [umami.is](https://umami.is), **Add website** with your Netlify domain, copy the **Website ID**.
+2. Set `PUBLIC_UMAMI_WEBSITE_ID` in Netlify environment variables and redeploy. Leave it blank locally so testing isn't counted.
+3. Page views, referrers, countries and devices are automatic. Custom events (see **Events** tab):
+   `add-to-cart`, `whatsapp-order`, `suggestion-click`, `search`, `filter-category`, `filter-size`.
+4. Share links with a source tag so WhatsApp/Instagram traffic is named: `https://<site>/?utm_source=instagram`.
+
 ## Editing products (for the store owner)
 Open the studio → **Product** → **+** → fill in name, click *Generate* for the web address, price, category, sizes (tick the boxes), drag in photos → **Publish**.
 Categories are added under **Category** first.

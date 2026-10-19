@@ -56,6 +56,8 @@ const sizes = [...new Set(products.flatMap((p) => p.sizes))];
   </section>
 
   <script>
+    import { track } from '../scripts/track.js';
+
     const cards = [...document.querySelectorAll('.card')];
     const search = document.getElementById('f-search');
     const size = document.getElementById('f-size');
@@ -81,8 +83,20 @@ const sizes = [...new Set(products.flatMap((p) => p.sizes))];
       document.querySelectorAll('.chip').forEach((x) => x.classList.toggle('active', x === b));
       cat = b.dataset.cat;
       apply();
+      if (cat) track('filter-category', { category: cat });
     });
-    search.addEventListener('input', apply);
-    size.addEventListener('change', apply);
+
+    // Record a search only once the person stops typing.
+    let searchTimer;
+    search.addEventListener('input', () => {
+      apply();
+      clearTimeout(searchTimer);
+      const q = search.value.trim().toLowerCase();
+      if (q.length >= 2) searchTimer = setTimeout(() => track('search', { query: q }), 1000);
+    });
+    size.addEventListener('change', () => {
+      apply();
+      if (size.value) track('filter-size', { size: size.value });
+    });
   </script>
 </Base>
