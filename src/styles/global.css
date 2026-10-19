@@ -49,6 +49,14 @@ button, input, select { font: inherit; }
 .back { color: var(--muted); display: inline-block; margin-bottom: 12px; }
 .detail { display: grid; gap: 24px; grid-template-columns: 1fr; }
 @media (min-width: 760px) { .detail { grid-template-columns: 1.1fr 1fr; } }
+/* Mobile product page: size picker on its own row, button centred and clear of the
+   corner badge Netlify pins bottom-right; extra bottom space lets it scroll above it. */
+@media (max-width: 759px) {
+  .detail .buy { flex-direction: column; align-items: center; gap: 10px; }
+  .detail .buy select { width: 100%; padding: 12px; }
+  .detail .buy .btn { width: min(100%, 260px); padding: 12px 14px; font-size: 16px; }
+  main:has(.detail) { padding-bottom: 96px; }
+}
 .gallery { display: grid; gap: 8px; }
 .gallery img { width: 100%; border-radius: var(--radius); display: block; }
 .detail h1 { margin: 0; font-size: 26px; }
