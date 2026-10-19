@@ -32,6 +32,8 @@ button, input, select { font: inherit; }
 .tag.inline { position: static; display: inline-block; }
 .tag.low { background: #d32f2f; color: #fff; font-weight: 600; }
 .detail-info .tag.low { margin: 0 0 12px; }
+.tag.featured { left: auto; right: 8px; width: 28px; height: 28px; padding: 0; border-radius: 50%; display: grid; place-items: center;
+  background: rgb(20 20 20 / .75); color: #f5b301; font-size: 17px; line-height: 1; }
 .info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .name { font-weight: 600; }
 .price { color: var(--accent-text); font-weight: 600; }
@@ -77,7 +79,8 @@ body.cart-open .backdrop { opacity: 1; pointer-events: auto; }
 .cart-items small { display: block; color: var(--muted); }
 .qty { display: flex; align-items: center; gap: 8px; }
 .qty button { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; }
-.drawer-foot { padding: 16px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+/* Bottom padding keeps "Order on WhatsApp" above the badge Netlify pins bottom-right. */
+.drawer-foot { padding: 16px 16px calc(76px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: grid; gap: 10px; }
 .total { display: flex; justify-content: space-between; font-size: 16px; }
 .qty button:disabled { opacity: .35; cursor: default; }
 

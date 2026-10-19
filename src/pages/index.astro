@@ -32,6 +32,7 @@ const sizes = [...new Set(products.flatMap((p) => p.sizes))];
       >
         <a href={`/product/${p.slug}/`} class="thumb">
           {p.images[0] && <img src={p.images[0]} alt={p.name} loading="lazy" />}
+          {p.pinned && <span class="tag featured" role="img" aria-label="Featured" title="Featured">★</span>}
           {!p.inStock && <span class="tag">Sold out</span>}
           {p.inStock && p.left !== null && p.left <= LOW_STOCK && <span class="tag low">Only {p.left} left</span>}
         </a>

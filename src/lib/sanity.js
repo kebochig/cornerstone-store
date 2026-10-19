@@ -13,7 +13,7 @@ const builder = client ? imageUrlBuilder(client) : null;
 const img = (src, w = 600) => builder.image(src).width(w).auto('format').url();
 
 const QUERY = `*[_type == "product"] | order(_createdAt desc) {
-  name, "slug": slug.current, price, sizes, stock[]{ size, qty }, inStock, description,
+  name, "slug": slug.current, price, sizes, stock[]{ size, qty }, inStock, pinned, description,
   "category": category->title, images
 }`;
 
@@ -53,13 +53,17 @@ export function getProducts() {
 }
 
 async function loadProducts() {
-  if (!client) return sample.map(withStock);
-  const rows = await client.fetch(QUERY);
-  return rows.map((p) => withStock({
-    ...p,
-    category: p.category || 'Other',
-    images: (p.images || []).map((i) => img(i, 800)),
-  }));
+  const rows = client
+    ? (await client.fetch(QUERY)).map((p) => ({
+        ...p,
+        category: p.category || 'Other',
+        images: (p.images || []).map((i) => img(i, 800)),
+      }))
+    : sample;
+  // Pinned first; otherwise keep the newest-first order (sort is stable).
+  return rows
+    .map((p) => withStock({ ...p, pinned: p.pinned === true }))
+    .sort((a, b) => b.pinned - a.pinned);
 }
 
 export const store = {

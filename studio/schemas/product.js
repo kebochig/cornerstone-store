@@ -7,6 +7,10 @@ export default {
   fields: [
     { name: 'name', title: 'Product name', type: 'string', validation: (R) => R.required() },
     {
+      name: 'pinned', title: 'Pin to top', type: 'boolean', initialValue: false,
+      description: 'Pinned products show first in the shop with a gold star.',
+    },
+    {
       name: 'slug', title: 'Web address', type: 'slug',
       description: 'Click "Generate" after typing the name.',
       options: { source: 'name', maxLength: 80 },
@@ -44,11 +48,11 @@ export default {
     { name: 'inStock', title: 'In stock', type: 'boolean', initialValue: true },
   ],
   preview: {
-    select: { title: 'name', price: 'price', media: 'images.0', inStock: 'inStock', stock: 'stock' },
-    prepare: ({ title, price, media, inStock, stock }) => {
+    select: { title: 'name', price: 'price', media: 'images.0', inStock: 'inStock', stock: 'stock', pinned: 'pinned' },
+    prepare: ({ title, price, media, inStock, stock, pinned }) => {
       const left = Array.isArray(stock) ? stock.reduce((s, r) => s + (r.qty || 0), 0) : null;
       const status = inStock === false || left === 0 ? ' · Sold out' : left !== null ? ` · ${left} left` : '';
-      return { title, media, subtitle: `${price ?? '-'}${status}` };
+      return { title: `${pinned ? '📌 ' : ''}${title}`, media, subtitle: `${price ?? '-'}${status}` };
     },
   },
 };
